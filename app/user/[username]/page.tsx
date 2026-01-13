@@ -94,6 +94,8 @@ export default async function UserPage({
   const session = await getServerSession(authOptions);
   const myId = (session?.user as any)?.id as string | undefined;
   const isMe = !!myId && myId === user.id;
+  const adminUsername = process.env.ADMIN_USERNAME;
+  const isAdmin = !!adminUsername && (session?.user as any)?.username === adminUsername;
 
   const weighInsAsc = user.weighIns;
 
@@ -214,16 +216,21 @@ export default async function UserPage({
           <WeighInsTable weighIns={weighInsForTable} canEdit={isMe} />
         )}
       </div>
-      {isMe && (
+     
+      {(isMe || isAdmin) && (
   <div className="border rounded-xl p-4 mt-6">
     <h2 className="font-semibold mb-2">Konto</h2>
     <p className="text-sm opacity-70 mb-3">
       Dette sletter brukeren og alle veiinger permanent.
     </p>
-    <DeleteUserButton userId={user.id} label="Slett min bruker" redirectTo="/register" />
+
+    <DeleteUserButton
+      userId={user.id}
+      label={isMe ? "Slett min bruker" : "Slett denne brukeren"}
+      redirectTo="/"
+    />
   </div>
 )}
-
     </main>
   );
 }
